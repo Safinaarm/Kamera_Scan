@@ -1,56 +1,131 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <!-- Menentukan karakter encoding UTF-8 agar mendukung berbagai simbol dan karakter -->
   <meta charset="UTF-8">
+
+  <!-- 
+    Mengatur viewport agar tampilan bersifat responsif 
+    dan dapat menyesuaikan ukuran layar perangkat (mobile-first design)
+  -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Judul halaman yang ditampilkan pada tab browser -->
   <title>QR Absensi Digital</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- 
+    Mengimpor pustaka Font Awesome versi 6.4.0 
+  -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- 
+    Mengimpor font 
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" 
+        rel="stylesheet">
+
+  <!-- Menghubungkan file CSS -->
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
+  <!-- 
+    Elemen pembungkus utama seluruh halaman aplikasi.
+    Seluruh proses absensi dibagi menjadi tiga bagian (multi-step interface).
+  -->
   <div class="page-container">
 
-    <!-- ── PAGE 1: Input Nama ── -->
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 1 : INPUT IDENTITAS PENGGUNA -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini berfungsi untuk menerima input Nama atau NIM mahasiswa
+      sebelum melanjutkan ke proses pemindaian QR Code.
+    -->
     <div id="page1" class="page active">
+
+      <!-- Identitas visual aplikasi -->
       <div class="app-badge">
-        <div class="app-icon"><i class="fas fa-qrcode"></i></div>
+        <div class="app-icon">
+          <!-- Ikon QR sebagai representasi sistem absensi berbasis QR -->
+          <i class="fas fa-qrcode"></i>
+        </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- 
+          Indikator tahapan proses.
+          Tahap pertama aktif (active), tahap lainnya belum aktif.
+        -->
         <div class="step-indicator">
           <div class="step-dot active"></div>
           <div class="step-dot"></div>
           <div class="step-dot"></div>
         </div>
 
+        <!-- Judul dan instruksi halaman -->
         <h2 class="page-title">Halo! 👋</h2>
-        <p class="page-subtitle">Masukkan nama atau NIM Anda untuk memulai absensi hari ini.</p>
+        <p class="page-subtitle">
+          Masukkan nama atau NIM Anda untuk memulai absensi hari ini.
+        </p>
 
+        <!-- Input identitas mahasiswa -->
         <div class="field">
-          <label><i class="fas fa-user"></i> Nama / NIM</label>
-          <input type="text" id="user_id" placeholder="Ketik nama lengkap atau NIM..." autocomplete="off" required>
+          <label>
+            <i class="fas fa-user"></i> Nama / NIM
+          </label>
+
+          <!-- 
+            Input teks untuk menerima data identitas pengguna.
+            - id="user_id" digunakan untuk pengambilan data melalui JavaScript
+            - required memastikan input tidak kosong
+          -->
+          <input 
+            type="text"
+            id="user_id"
+            placeholder="Ketik nama lengkap atau NIM..."
+            autocomplete="off"
+            required>
         </div>
 
+        <!-- Tombol untuk melanjutkan ke tahap pemindaian QR -->
         <button id="submitNameBtn" class="btn btn-primary">
           <i class="fas fa-arrow-right"></i>
           Lanjut ke Scan QR
         </button>
 
+        <!-- Area untuk menampilkan pesan validasi atau kesalahan -->
         <div id="status" class="status-msg"></div>
       </div>
     </div>
 
-    <!-- ── PAGE 2: Scan QR ── -->
+
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 2 : PROSES PEMINDAIAN QR CODE -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini mengaktifkan kamera perangkat pengguna
+      untuk membaca QR Code yang ditampilkan.
+    -->
     <div id="page2" class="page">
+
       <div class="app-badge">
-        <div class="app-icon"><i class="fas fa-camera"></i></div>
+        <div class="app-icon">
+          <!-- Ikon kamera sebagai simbol proses pemindaian -->
+          <i class="fas fa-camera"></i>
+        </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- Indikator tahapan (Tahap 2 aktif) -->
         <div class="step-indicator">
           <div class="step-dot done"></div>
           <div class="step-dot active"></div>
@@ -58,10 +133,19 @@
         </div>
 
         <h2 class="page-title">Scan QR Code</h2>
-        <p class="page-subtitle">Arahkan kamera ke QR Code yang ditampilkan oleh dosen.</p>
+        <p class="page-subtitle">
+          Arahkan kamera ke QR Code yang ditampilkan oleh dosen.
+        </p>
 
+        <!-- 
+          Elemen video digunakan untuk menampilkan stream kamera.
+          Data dari elemen ini akan diproses oleh library ZXing
+          untuk mendeteksi dan membaca QR Code.
+        -->
         <div class="camera-frame">
           <video id="video" playsinline autoplay></video>
+
+          <!-- Elemen visual tambahan untuk membantu pengguna saat memindai QR -->
           <div class="scan-overlay">
             <div class="scan-box">
               <div class="scan-line"></div>
@@ -73,68 +157,106 @@
           </div>
         </div>
 
+        <!-- 
+          Menampilkan status proses pemindaian, 
+          seperti inisialisasi kamera, keberhasilan, atau kesalahan.
+        -->
         <div id="scanStatus" class="status-msg info show">
-          <i class="fas fa-circle-notch fa-spin"></i>&nbsp; Menginisialisasi kamera...
+          <i class="fas fa-circle-notch fa-spin"></i>
+          &nbsp; Menginisialisasi kamera...
         </div>
 
+        <!-- Tombol untuk kembali ke halaman sebelumnya -->
         <button id="backBtn" class="btn btn-ghost">
           <i class="fas fa-arrow-left"></i>
           Kembali
         </button>
+
       </div>
     </div>
 
-    <!-- ── PAGE 3: Sukses ── -->
+
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 3 : KONFIRMASI KEBERHASILAN ABSENSI -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini menampilkan hasil absensi yang berhasil dicatat
+      berdasarkan respons dari server.
+    -->
     <div id="page3" class="page">
+
       <div class="app-badge">
         <div class="app-icon app-icon-success">
+          <!-- Ikon centang sebagai indikator keberhasilan -->
           <i class="fas fa-check"></i>
         </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- Indikator tahapan (Tahap 3 aktif) -->
         <div class="step-indicator">
           <div class="step-dot done"></div>
           <div class="step-dot done"></div>
           <div class="step-dot active"></div>
         </div>
 
+        <!-- Header keberhasilan -->
         <div class="success-header">
           <div class="success-ring">✓</div>
           <h2>Absensi Tercatat!</h2>
           <p>Kehadiran Anda telah berhasil disimpan</p>
         </div>
 
+        <!-- Detail informasi absensi -->
         <div class="detail-grid">
           <div class="detail-row">
             <span class="label">Nama / NIM</span>
             <span class="value" id="resultName">—</span>
           </div>
+
           <div class="detail-row">
             <span class="label">Mata Kuliah</span>
             <span class="value" id="resultCourse">—</span>
           </div>
+
           <div class="detail-row">
             <span class="label">Sesi</span>
             <span class="value" id="resultSession">—</span>
           </div>
+
           <div class="detail-row">
             <span class="label">ID Absen</span>
             <span class="value" id="resultPresenceId">—</span>
           </div>
         </div>
 
+        <!-- Tombol untuk mengulang proses dari awal -->
         <button id="backToHomeBtn" class="btn btn-primary">
           <i class="fas fa-home"></i>
           Kembali ke Awal
         </button>
+
       </div>
     </div>
 
   </div>
 
+
+  <!-- 
+    Mengimpor library ZXing (Zebra Crossing)
+    yang digunakan untuk melakukan decoding QR Code melalui kamera.
+  -->
   <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+
+  <!-- 
+    Menghubungkan file JavaScript eksternal
+    yang mengatur logika navigasi halaman,
+    inisialisasi kamera, pemrosesan QR, dan komunikasi dengan server.
+  -->
   <script src="script.js"></script>
+
 </body>
 </html>
