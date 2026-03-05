@@ -1,52 +1,90 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <!-- Menentukan karakter encoding UTF-8 agar mendukung berbagai simbol dan karakter -->
   <meta charset="UTF-8">
+
+  <!-- 
+    Mengatur viewport agar tampilan bersifat responsif 
+    dan dapat menyesuaikan ukuran layar perangkat (mobile-first design)
+  -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Judul halaman yang ditampilkan pada tab browser -->
   <title>QR Absensi Digital</title>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 
+    Mengimpor pustaka Font Awesome versi 6.4.0 
+  -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Google Fonts (jika styles.css butuh font ini, biarkan; kalau tidak, bisa dihapus) -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- 
+    Mengimpor font 
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" 
+        rel="stylesheet">
 
-  <!-- Link ke file CSS kamu -->
+  <!-- Menghubungkan file CSS -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- ZXing Browser untuk scan QR dari kamera -->
-  <script src="https://unpkg.com/@zxing/browser@latest/umd/index.min.js"></script>
 </head>
 
 <body>
 
+  <!-- 
+    Elemen pembungkus utama seluruh halaman aplikasi.
+    Seluruh proses absensi dibagi menjadi tiga bagian (multi-step interface).
+  -->
   <div class="page-container">
 
-    <!-- Halaman 1: Input Nama / NIM -->
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 1 : INPUT IDENTITAS PENGGUNA -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini berfungsi untuk menerima input Nama atau NIM mahasiswa
+      sebelum melanjutkan ke proses pemindaian QR Code.
+    -->
     <div id="page1" class="page active">
+
+      <!-- Identitas visual aplikasi -->
       <div class="app-badge">
         <div class="app-icon">
+          <!-- Ikon QR sebagai representasi sistem absensi berbasis QR -->
           <i class="fas fa-qrcode"></i>
         </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- 
+          Indikator tahapan proses.
+          Tahap pertama aktif (active), tahap lainnya belum aktif.
+        -->
         <div class="step-indicator">
           <div class="step-dot active"></div>
           <div class="step-dot"></div>
           <div class="step-dot"></div>
         </div>
 
+        <!-- Judul dan instruksi halaman -->
         <h2 class="page-title">Halo! 👋</h2>
         <p class="page-subtitle">
           Masukkan nama atau NIM Anda untuk memulai absensi hari ini.
         </p>
 
+        <!-- Input identitas mahasiswa -->
         <div class="field">
           <label>
             <i class="fas fa-user"></i> Nama / NIM
           </label>
+
+          <!-- 
+            Input teks untuk menerima data identitas pengguna.
+            - id="user_id" digunakan untuk pengambilan data melalui JavaScript
+            - required memastikan input tidak kosong
+          -->
           <input 
             type="text"
             id="user_id"
@@ -55,25 +93,39 @@
             required>
         </div>
 
+        <!-- Tombol untuk melanjutkan ke tahap pemindaian QR -->
         <button id="submitNameBtn" class="btn btn-primary">
           <i class="fas fa-arrow-right"></i>
           Lanjut ke Scan QR
         </button>
 
-        <div id="status1" class="status-msg"></div>
+        <!-- Area untuk menampilkan pesan validasi atau kesalahan -->
+        <div id="status" class="status-msg"></div>
       </div>
     </div>
 
-    <!-- Halaman 2: Scan QR -->
+
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 2 : PROSES PEMINDAIAN QR CODE -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini mengaktifkan kamera perangkat pengguna
+      untuk membaca QR Code yang ditampilkan.
+    -->
     <div id="page2" class="page">
+
       <div class="app-badge">
         <div class="app-icon">
+          <!-- Ikon kamera sebagai simbol proses pemindaian -->
           <i class="fas fa-camera"></i>
         </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- Indikator tahapan (Tahap 2 aktif) -->
         <div class="step-indicator">
           <div class="step-dot done"></div>
           <div class="step-dot active"></div>
@@ -85,9 +137,15 @@
           Arahkan kamera ke QR Code yang ditampilkan oleh dosen.
         </p>
 
+        <!-- 
+          Elemen video digunakan untuk menampilkan stream kamera.
+          Data dari elemen ini akan diproses oleh library ZXing
+          untuk mendeteksi dan membaca QR Code.
+        -->
         <div class="camera-frame">
-          <video id="video" playsinline autoplay muted></video>
+          <video id="video" playsinline autoplay></video>
 
+          <!-- Elemen visual tambahan untuk membantu pengguna saat memindai QR -->
           <div class="scan-overlay">
             <div class="scan-box">
               <div class="scan-line"></div>
@@ -99,40 +157,60 @@
           </div>
         </div>
 
+        <!-- 
+          Menampilkan status proses pemindaian, 
+          seperti inisialisasi kamera, keberhasilan, atau kesalahan.
+        -->
         <div id="scanStatus" class="status-msg info show">
           <i class="fas fa-circle-notch fa-spin"></i>
           &nbsp; Menginisialisasi kamera...
         </div>
 
+        <!-- Tombol untuk kembali ke halaman sebelumnya -->
         <button id="backBtn" class="btn btn-ghost">
           <i class="fas fa-arrow-left"></i>
           Kembali
         </button>
+
       </div>
     </div>
 
-    <!-- Halaman 3: Konfirmasi Sukses -->
+
+
+    <!-- ========================================================= -->
+    <!-- HALAMAN 3 : KONFIRMASI KEBERHASILAN ABSENSI -->
+    <!-- ========================================================= -->
+    <!-- 
+      Halaman ini menampilkan hasil absensi yang berhasil dicatat
+      berdasarkan respons dari server.
+    -->
     <div id="page3" class="page">
+
       <div class="app-badge">
         <div class="app-icon app-icon-success">
+          <!-- Ikon centang sebagai indikator keberhasilan -->
           <i class="fas fa-check"></i>
         </div>
         <div class="app-name">QR<span>Absen</span></div>
       </div>
 
       <div class="card">
+
+        <!-- Indikator tahapan (Tahap 3 aktif) -->
         <div class="step-indicator">
           <div class="step-dot done"></div>
           <div class="step-dot done"></div>
           <div class="step-dot active"></div>
         </div>
 
+        <!-- Header keberhasilan -->
         <div class="success-header">
           <div class="success-ring">✓</div>
           <h2>Absensi Tercatat!</h2>
           <p>Kehadiran Anda telah berhasil disimpan</p>
         </div>
 
+        <!-- Detail informasi absensi -->
         <div class="detail-grid">
           <div class="detail-row">
             <span class="label">Nama / NIM</span>
@@ -155,164 +233,30 @@
           </div>
         </div>
 
+        <!-- Tombol untuk mengulang proses dari awal -->
         <button id="backToHomeBtn" class="btn btn-primary">
           <i class="fas fa-home"></i>
           Kembali ke Awal
         </button>
+
       </div>
     </div>
 
   </div>
 
-  <script>
-    const BASE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwtaOPeaNCevIXk1SaP2KlhFrsUFAc0fyn_vPwiqUVEiJSzF_9nn56zH_hKEYjzaweG/exec";
 
-    let codeReader = null;
-    let videoElement = document.getElementById('video');
-    let scanning = false;
+  <!-- 
+    Mengimpor library ZXing (Zebra Crossing)
+    yang digunakan untuk melakukan decoding QR Code melalui kamera.
+  -->
+  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
 
-    // Fungsi ganti halaman
-    function showPage(pageId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
-    }
+  <!-- 
+    Menghubungkan file JavaScript eksternal
+    yang mengatur logika navigasi halaman,
+    inisialisasi kamera, pemrosesan QR, dan komunikasi dengan server.
+  -->
+  <script src="script.js"></script>
 
-    // Halaman 1 → Submit nama/NIM
-    document.getElementById('submitNameBtn').addEventListener('click', () => {
-      const userId = document.getElementById('user_id').value.trim();
-      if (!userId) {
-        const status = document.getElementById('status1');
-        status.textContent = "Nama / NIM tidak boleh kosong!";
-        status.className = 'status-msg error show';
-        return;
-      }
-
-      localStorage.setItem('absen_user_id', userId);
-      showPage('page2');
-      startScanning();
-    });
-
-    // Kembali dari halaman scan
-    document.getElementById('backBtn').addEventListener('click', () => {
-      stopScanning();
-      showPage('page1');
-    });
-
-    // Kembali ke halaman awal dari konfirmasi
-    document.getElementById('backToHomeBtn').addEventListener('click', () => {
-      document.getElementById('user_id').value = '';
-      showPage('page1');
-    });
-
-    // Mulai scanning QR
-    async function startScanning() {
-      if (scanning) return;
-      scanning = true;
-
-      const scanStatus = document.getElementById('scanStatus');
-      scanStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Mengakses kamera...';
-      scanStatus.className = 'status-msg info show';
-
-      try {
-        codeReader = new ZXingBrowser.BrowserMultiFormatReader();
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } }
-        });
-
-        videoElement.srcObject = stream;
-        await videoElement.play();
-
-        scanStatus.innerHTML = '<i class="fas fa-qrcode"></i> Arahkan ke QR code...';
-
-        // Decode secara kontinu
-        codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
-          if (result) {
-            processQR(result.getText());
-            stopScanning();
-          }
-          if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-          }
-        });
-
-      } catch (err) {
-        console.error(err);
-        scanStatus.textContent = 'Gagal akses kamera: ' + err.message + '. Pastikan izin kamera diizinkan.';
-        scanStatus.className = 'status-msg error show';
-        scanning = false;
-      }
-    }
-
-    function stopScanning() {
-      if (codeReader) {
-        codeReader.reset();
-        codeReader = null;
-      }
-      if (videoElement.srcObject) {
-        videoElement.srcObject.getTracks().forEach(track => track.stop());
-        videoElement.srcObject = null;
-      }
-      scanning = false;
-    }
-
-    // Proses isi QR yang terbaca
-    async function processQR(qrText) {
-      try {
-        const url = new URL(qrText);
-        const qr_token   = url.searchParams.get('qr_token');
-        const course_id  = url.searchParams.get('course_id');
-        const session_id = url.searchParams.get('session_id');
-
-        if (!qr_token || !course_id || !session_id) {
-          throw new Error("QR code tidak valid (parameter hilang)");
-        }
-
-        const user_id = localStorage.getItem('absen_user_id') || 'unknown';
-
-        const payload = {
-          action: "checkin",
-          user_id,
-          device_id: navigator.userAgent || "browser",
-          course_id,
-          session_id,
-          qr_token,
-          ts: new Date().toISOString()
-        };
-
-        const scanStatus = document.getElementById('scanStatus');
-        scanStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Mengirim data absensi...';
-        scanStatus.className = 'status-msg info show';
-
-        const response = await fetch(BASE_WEBAPP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (!result.ok) {
-          throw new Error(result.error || "Gagal mencatat absensi");
-        }
-
-        // Tampilkan hasil sukses
-        document.getElementById('resultName').textContent = user_id;
-        document.getElementById('resultCourse').textContent = course_id;
-        document.getElementById('resultSession').textContent = session_id;
-        document.getElementById('resultPresenceId').textContent = result.data?.presence_id || '—';
-
-        showPage('page3');
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById('scanStatus').textContent = 'Gagal: ' + err.message;
-        document.getElementById('scanStatus').className = 'status-msg error show';
-      }
-    }
-
-    // Cleanup saat halaman ditutup
-    window.addEventListener('beforeunload', stopScanning);
-  </script>
 </body>
 </html>

@@ -9,188 +9,201 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  /* ── RESET ── */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+  /* ── DESIGN SYSTEM (SAMA DENGAN SCAN PAGE) ── */
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --success: #10b981;
+    --error: #ef4444;
+    --bg: #0f0e17;
+    --card-bg: #1a1929;
+    --card-border: rgba(255,255,255,0.07);
+    --text: #f0eff7;
+    --text-muted: #a09fc0;
+    --radius: 20px;
+  }
 
+  /* ── BODY ── */
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* Radial Glow Background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(79,70,229,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.15) 0%, transparent 60%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── CONTAINER (GANTI STYLE LAMA) ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow:
+      0 32px 64px rgba(0,0,0,0.4),
+      0 0 0 1px rgba(255,255,255,0.04) inset;
+    backdrop-filter: blur(20px);
+  }
+
+  /* ── TITLE ── */
+  h2 {
+    color: var(--text);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* ── BUTTON (SAMA DENGAN SCAN PAGE) ── */
+  button {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    background: linear-gradient(135deg, var(--primary) 0%, #6d28d9 100%);
+    color: white;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+    margin-bottom: 25px;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(79,70,229,0.5);
+  }
+
+  /* ── QR BOX ── */
+  #qrcode {
+    margin: 0 auto 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    border: 1px solid rgba(79,70,229,0.3);
+    min-height: 240px;
+    box-shadow: 0 0 32px rgba(79,70,229,0.15);
+  }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: left;
+  }
+
+  #info {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.8;
+  }
+
+  #info b {
+    color: var(--primary-light);
+  }
+
+  /* ── TIMER ── */
+  #timer {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    padding: 12px;
+    background: rgba(6,182,212,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(6,182,212,0.2);
+    animation: pulse 1.2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ── LOADING SPINNER ── */
+  .loading-spinner {
+    display: none;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .loading-spinner.active {
+    display: block;
+  }
+
+  .spinner {
+    border: 4px solid rgba(255,255,255,0.08);
+    border-top: 4px solid var(--primary-light);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 13px;
+    color: var(--primary-light);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
     .container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 40px;
-      max-width: 500px;
-      width: 100%;
+      padding: 28px 20px;
     }
-
-    h2 {
-      color: #333;
-      font-size: 28px;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .subtitle {
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 30px;
-    }
-
-    button {
-      background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-      color: white;
-      border: none;
-      padding: 14px 32px;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4);
-      margin-bottom: 30px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.6);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    #qrcode {
-      margin: 0 auto 30px;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 15px;
-      min-height: 240px;
-      align-items: center;
-    }
-
-    .info-box {
-      background: #e0f7ff;
-      border-left: 4px solid #00b4d8;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: left;
-    }
-
-    #info {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 15px;
-      line-height: 1.8;
-    }
-
-    #info b {
-      color: #0077b6;
-      font-weight: 600;
-    }
-
-    #timer {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0077b6;
-      text-align: center;
-      padding: 15px;
-      background: white;
-      border-radius: 8px;
-      margin-top: 15px;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.7;
-      }
-    }
-
-    .loading-spinner {
-      display: none;
-      text-align: center;
-      margin: 30px 0;
-    }
-
-    .loading-spinner.active {
-      display: block;
-    }
-
-    .spinner {
-      border: 4px solid #e0f7ff;
-      border-top: 4px solid #00b4d8;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loading-text {
-      font-size: 14px;
-      color: #00b4d8;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-
-    .loading-text::after {
-      content: '';
-      animation: dots 1.5s steps(4, end) infinite;
-    }
-
-    @keyframes dots {
-      0%, 20% {
-        content: '';
-      }
-      40% {
-        content: '.';
-      }
-      60% {
-        content: '..';
-      }
-      80%, 100% {
-        content: '...';
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 30px 20px;
-      }
-
-      h2 {
-        font-size: 24px;
-      }
-
-      button {
-        width: 100%;
-      }
-    }
+  }
   </style>
 </head>
 <body>
